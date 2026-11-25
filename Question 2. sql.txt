@@ -1,0 +1,36 @@
+DELIMITER //
+
+CREATE FUNCTION fn_sale_value(p_medicine_id INT, p_quantity INT) 
+RETURNS DECIMAL(10,2)
+DETERMINISTIC
+BEGIN
+    DECLARE v_unit_price DECIMAL(10,2);
+    
+    -- Reject invalid quantity (must be positive)
+    IF p_quantity <= 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Invalid quantity: Must be greater than zero.';
+    END IF;
+
+    -- Get the unit price for the medicine
+    SELECT unit_price INTO v_unit_price 
+    FROM medicines 
+    WHERE medicine_id = p_medicine_id;
+
+    -- Reject unknown medicine
+    IF v_unit_price IS NULL THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Unknown medicine ID.';
+    END IF;
+
+    -- Return current unit price * positive quantity
+    RETURN v_unit_price * p_quantity;
+    
+END //
+
+DELIMITER ;-- Should return 22.00 (e.g., medicine 1 price is 5.50 * 4)
+SELECT fn_sale_value(1, 4); 
+
+-- Should trigger an error (invalid quantity)
+SELECT fn_sale_value(1, -1); 
+
+-- Should trigger an error (unknown medicine)
+SELECT fn_sale_value(99, 2);
