@@ -1,0 +1,50 @@
+-- Create medicines table
+CREATE TABLE medicines (
+    medicine_id INT PRIMARY KEY,
+    medicine_name VARCHAR(100) NOT NULL,
+    unit_price DECIMAL(10, 2) NOT NULL CHECK (unit_price > 0),
+    stock_qty INT NOT NULL CHECK (stock_qty >= 0)
+);
+
+-- Create sales table
+CREATE TABLE sales (
+    sale_id INT PRIMARY KEY,
+    medicine_id INT,
+    quantity INT NOT NULL,
+    unit_price DECIMAL(10, 2) NOT NULL CHECK (unit_price > 0),
+    sold_on DATE NOT NULL,
+    FOREIGN KEY (medicine_id) REFERENCES medicines(medicine_id)
+);
+
+-- Create stock_audit table
+CREATE TABLE stock_audit (
+    audit_id INT PRIMARY KEY,
+    medicine_id INT,
+    old_qty INT NOT NULL,
+    new_qty INT NOT NULL,
+    changed_at DATETIME NOT NULL,
+    FOREIGN KEY (medicine_id) REFERENCES medicines(medicine_id)
+);
+
+-- Create daily_sales table
+CREATE TABLE daily_sales (
+    sales_date DATE PRIMARY KEY,
+    total_qty INT NOT NULL,
+    total_amount DECIMAL(10, 2) NOT NULL
+);
+-- Insert at least 3 medicines
+INSERT INTO medicines (medicine_id, medicine_name, unit_price, stock_qty) 
+VALUES 
+(1, 'Paracetamol 500mg', 5.50, 100),
+(2, 'Amoxicillin 250mg', 12.00, 50),
+(3, 'Ibuprofen 400mg', 8.25, 75);
+
+-- Insert 6 valid sales
+INSERT INTO sales (sale_id, medicine_id, quantity, unit_price, sold_on) 
+VALUES 
+(1, 1, 2, 5.50, '2023-10-01'),
+(2, 2, 1, 12.00, '2023-10-01'),
+(3, 3, 3, 8.25, '2023-10-02'),
+(4, 1, 1, 5.50, '2023-10-02'),
+(5, 2, 2, 12.00, '2023-10-03'),
+(6, 3, 1, 8.25, '2023-10-03');
