@@ -1,0 +1,14 @@
+DELIMITER //
+
+CREATE TRIGGER trg_after_medicine_update
+AFTER UPDATE ON medicines
+FOR EACH ROW
+BEGIN
+    -- Only log if the stock quantity actually changed
+    IF OLD.stock_qty <> NEW.stock_qty THEN
+        INSERT INTO stock_audit (medicine_id, old_qty, new_qty, changed_at)
+        VALUES (NEW.medicine_id, OLD.stock_qty, NEW.stock_qty, NOW());
+    END IF;
+END //
+
+DELIMITER ;
