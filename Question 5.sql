@@ -1,0 +1,1 @@
+CREATE OR REPLACE VIEW v_low_stock AS SELECT medicine_id,       medicine_name,       unit_price,       stock_qty AS remaining_stock FROM medicines WHERE stock_qty < 10;-- Before: empty SELECT * FROM v_low_stock;-- A sale that drops Amoxicillin from 35 to 5 CALL pr_record_sale(2, 30, '2026-11-23');-- After: Amoxicillin now appears SELECT * FROM v_low_stock
